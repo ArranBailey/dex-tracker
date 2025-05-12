@@ -22,6 +22,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -145,7 +147,39 @@ class CardViewModel : ViewModel() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: () -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
 
+    SearchBar(
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = {
+                    onSearch()
+                    isExpanded = false
+                },
+                expanded = isExpanded,
+                onExpandedChange = { isExpanded = it },
+                placeholder = { Text("Search Pokémon") }
+            )
+        },
+        expanded = false,
+        onExpandedChange = {},
+        modifier = Modifier.fillMaxWidth(),
+        shape = SearchBarDefaults.inputFieldShape,
+        colors = SearchBarDefaults.colors(),
+        tonalElevation = 0.dp,
+        shadowElevation = 4.dp,
+        content = {}
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,20 +187,13 @@ fun CardSearchScreen(viewModel: CardViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
     Log.d("Info", searchQuery)
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search Pokémon") },
-            modifier = Modifier.fillMaxWidth()
+        CustomSearchBar(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it },
+            onSearch = { viewModel.search(searchQuery) }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = { viewModel.search(searchQuery) },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Search")
-        }
 
         if (viewModel.isLoading.value) {
             CircularProgressIndicator()
@@ -202,43 +229,3 @@ fun CardItem(card: Card) {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column (modifier = modifier
-        .background(color = Color.Black)
-
-    ){
-        Text(
-            text = "Hello $name!",
-            color = Color.Green,
-            fontStyle = FontStyle.Italic,
-            modifier = modifier
-                .background(color = Color.Black)
-        )
-        Text(text = "Hello")
-
-    }
-}
-
-@Composable
-fun CardImagePreview() {
-    val imageUrl = "https://images.pokemontcg.io/xy1/1_hires.png"
-
-    AsyncImage(
-        model = imageUrl,
-        contentDescription = "Venusaur EX card",
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .height(300.dp)
-            .clip(RoundedCornerShape(12.dp))
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DextrackerTheme {
-        CardSearchScreen()
-    }
-}
