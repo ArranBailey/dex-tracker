@@ -1,4 +1,4 @@
-package com.example.dex_tracker.ui.theme
+package com.arranbailey.dextracker.ui.theme
 
 import android.app.Activity
 import android.os.Build
