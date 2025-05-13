@@ -46,6 +46,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.ui.theme.DextrackerTheme
 import coil.compose.AsyncImage
+import com.arranbailey.dextracker.model.Card
+import com.arranbailey.dextracker.network.PokeApiService
+import com.arranbailey.dextracker.network.RetrofitInstance
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -69,56 +72,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-data class CardResponse(
-    val data: List<Card>
-)
-
-data class Card(
-    val id: String,
-    val name: String,
-    val images: CardImages,
-    val rarity: String?,
-    val set: CardSet?
-)
-
-data class CardImages(
-    val small: String,
-    val large: String
-)
-
-data class CardSet(
-    val name: String,
-    val series: String
-)
-
-
-interface PokeApiService {
-    @GET("cards")
-    suspend fun searchCards(
-        @Query("q") query: String,
-        @Query("pageSize") pageSize: Int = 50
-    ): CardResponse
-}
-
-object RetrofitInstance {
-    private const val BASE_URL = "https://api.pokemontcg.io/v2/"
-    val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-    val client = OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .build()
-
-    val api: PokeApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
-            .build()
-            .create(PokeApiService::class.java)
     }
 }
 
