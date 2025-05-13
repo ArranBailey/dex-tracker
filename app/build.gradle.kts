@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp") version "2.1.20-2.0.1"
 }
 
 android {
@@ -63,7 +64,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.3.2")
     implementation("androidx.compose.foundation:foundation-layout-android:1.8.1")
-    annotationProcessor("androidx.room:room-compiler:2.7.1")
+    ksp("androidx.room:room-compiler:2.7.1")
     implementation("androidx.room:room-common-jvm:2.7.1")
     implementation("androidx.room:room-runtime-android:2.7.1")
     testImplementation("junit:junit:4.13.2")

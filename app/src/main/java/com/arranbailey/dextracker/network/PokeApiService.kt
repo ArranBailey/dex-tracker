@@ -10,4 +10,10 @@ interface PokeApiService {
         @Query("q") query: String,
         @Query("pageSize") pageSize: Int = 50
     ): CardResponse
+
+    @GET("cards")
+    suspend fun getCardsBySet(
+        @Query("q") query: String,
+        @Query("pageSize") pageSize: Int = 250
+    ): CardResponse
 }

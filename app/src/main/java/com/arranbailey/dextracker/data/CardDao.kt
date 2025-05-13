@@ -14,6 +14,9 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE name LIKE '%' || :query || '%'")
     suspend fun search(query: String): List<CardEntity>
 
+    @Query("SELECT * FROM cards WHERE setName = :setName")
+    suspend fun getCardsBySet(setName: String): List<CardEntity>
+
     @Query("DELETE FROM cards")
     suspend fun clearAll()
 }

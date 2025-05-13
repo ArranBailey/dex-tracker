@@ -49,6 +49,8 @@ import coil.compose.AsyncImage
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.network.PokeApiService
 import com.arranbailey.dextracker.network.RetrofitInstance
+import com.arranbailey.dextracker.ui.card.CardSearchScreen
+import com.arranbailey.dextracker.viewmodel.CardViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -75,110 +77,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class CardViewModel : ViewModel() {
-    var cards = mutableStateOf<List<Card>>(emptyList())
-        private set
 
-    var isLoading = mutableStateOf(false)
-        private set
 
-    fun search(query: String) {
-        viewModelScope.launch {
-            isLoading.value = true
-            try {
-                val response = RetrofitInstance.api.searchCards("name:$query")
-                Log.d("DEBUG", "Raw response: ${response.data.size}")
-                cards.value = response.data
-                val rawJson = Gson().toJson(response)
-                Log.d("RAW_JSON", rawJson)
-            } catch (e: Exception) {
-                // Handle error
-                cards.value = emptyList()
-            }
-            isLoading.value = false
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit
-) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    SearchBar(
-        inputField = {
-            SearchBarDefaults.InputField(
-                query = query,
-                onQueryChange = onQueryChange,
-                onSearch = {
-                    onSearch()
-                    isExpanded = false
-                },
-                expanded = isExpanded,
-                onExpandedChange = { isExpanded = it },
-                placeholder = { Text("Search Pokémon") }
-            )
-        },
-        expanded = false,
-        onExpandedChange = {},
-        modifier = Modifier.fillMaxWidth(),
-        shape = SearchBarDefaults.inputFieldShape,
-        colors = SearchBarDefaults.colors(),
-        tonalElevation = 0.dp,
-        shadowElevation = 4.dp,
-        content = {}
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CardSearchScreen(viewModel: CardViewModel = viewModel()) {
-    var searchQuery by remember { mutableStateOf("") }
-    Log.d("Info", searchQuery)
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        CustomSearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            onSearch = { viewModel.search(searchQuery) }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (viewModel.isLoading.value) {
-            CircularProgressIndicator()
-        } else {
-            LazyColumn {
-                items(viewModel.cards.value) { card ->
-                    CardItem(card)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CardItem(card: Card) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-
-        AsyncImage(
-            model = card.images.small,
-            contentDescription = card.name,
-            modifier = Modifier.size(80.dp)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(card.name, fontWeight = FontWeight.Bold)
-            Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
-            Text(card.set?.name ?: "Unknown set", fontSize = 12.sp)
-        }
-    }
-}
 
