@@ -8,15 +8,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.model.Card
+import com.arranbailey.dextracker.model.CardSet
 import com.arranbailey.dextracker.model.toCard
 import com.arranbailey.dextracker.model.toEntity
+import com.arranbailey.dextracker.model.toCardSet
+import com.arranbailey.dextracker.model.toSetEntity
 import com.arranbailey.dextracker.network.RetrofitInstance
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CardViewModel(application: Application) : AndroidViewModel(application) {
+    init {
+        viewModelScope.launch {
+            cacheAllCards()
+        }
+    }
+
     var cards = mutableStateOf<List<Card>>(emptyList())
         private set
+
+    var sets = mutableStateOf<List<CardSet>>(emptyList())
 
     var isLoading = mutableStateOf(false)
         private set
@@ -39,6 +51,7 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
     }
     private val db = CardDatabase.getDatabase(application)
     private val dao = db.cardDao()
+    private val setDao = db.setDao()
     fun cacheSet(setName: String) {
         viewModelScope.launch {
             try {
@@ -59,6 +72,26 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
             Log.d("RoomTest", "Found ${cachedCards.size} cards in DB")
             cards.value = cachedCards.map { it.toCard() }
         }
+    }
+
+    fun cacheAllCards(){
+        viewModelScope.launch {
+            getAllSets()
+            Log.d("Setup", "Saving cards to database")
+            val cachedSets = setDao.getAll()
+            for (set in cachedSets){
+                delay(100)
+                Log.d("Setup", "Saving cards in \"${set.name}\"")
+                cacheSet("\"${set.name}\"")
+            }
+        }
+    }
+
+    suspend fun getAllSets() {
+        val newSets = RetrofitInstance.api.searchSets("")
+        val entities = newSets.data.map { it.toSetEntity() }
+        setDao.insertAllSets(entities)
+        Log.d("CardViewModel", "Cached ${entities.size} sets")
     }
 }
 

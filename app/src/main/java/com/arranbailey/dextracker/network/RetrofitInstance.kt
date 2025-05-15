@@ -1,5 +1,7 @@
 package com.arranbailey.dextracker.network
 
+import com.arranbailey.dextracker.BuildConfig
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -11,7 +13,18 @@ object RetrofitInstance {
     val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
+
+    val authInterceptor = Interceptor { chain ->
+        val requestWithApiKey =
+            chain.request()
+                .newBuilder()
+                .header("X-Api-Key", BuildConfig.POKEMON_API_KEY)
+                .build()
+        chain.proceed(requestWithApiKey)
+    }
+
     val client = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
         .addInterceptor(logging)
         .build()
 
