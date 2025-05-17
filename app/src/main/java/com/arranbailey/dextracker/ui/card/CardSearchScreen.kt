@@ -71,7 +71,13 @@ fun CustomSearchBar(
 fun CardSearchScreen(viewModel: CardViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
     Log.d("Info", searchQuery)
+    val isCaching = viewModel.isCaching
+
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        if (isCaching.value) {
+                Text("Caching cards...", Modifier.padding(16.dp))
+        }
         CustomSearchBar(
             query = searchQuery,
             onQueryChange = { searchQuery = it },

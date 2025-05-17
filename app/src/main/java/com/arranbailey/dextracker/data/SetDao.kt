@@ -11,6 +11,9 @@ interface SetDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllSets(sets: List<SetEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSet(setEntity: SetEntity)
+
     @Query("SELECT * FROM sets")
     suspend fun getAll(): List<SetEntity>
 }

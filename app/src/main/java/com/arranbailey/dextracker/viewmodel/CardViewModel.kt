@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
+import com.arranbailey.dextracker.data.SetEntity
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.model.CardSet
 import com.arranbailey.dextracker.model.toCard
@@ -19,19 +20,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CardViewModel(application: Application) : AndroidViewModel(application) {
-    init {
-        viewModelScope.launch {
-            cacheAllCards()
-        }
-    }
-
+    var isCaching = mutableStateOf(false)
+        private set
+    private val db = CardDatabase.getDatabase(application)
+    private val dao = db.cardDao()
+    private val setDao = db.setDao()
     var cards = mutableStateOf<List<Card>>(emptyList())
         private set
-
     var sets = mutableStateOf<List<CardSet>>(emptyList())
-
     var isLoading = mutableStateOf(false)
         private set
+
+    init {
+        viewModelScope.launch {
+            checkMissingSets()
+        }
+    }
 
     fun search(query: String) {
         viewModelScope.launch {
@@ -49,9 +53,6 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
             isLoading.value = false
         }
     }
-    private val db = CardDatabase.getDatabase(application)
-    private val dao = db.cardDao()
-    private val setDao = db.setDao()
     fun cacheSet(setName: String) {
         viewModelScope.launch {
             try {
@@ -74,8 +75,30 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun checkMissingSets(){
+        viewModelScope.launch {
+            isCaching.value = true
+            var cachedSets = setDao.getAll()
+            val cachedSetIds = cachedSets.map { it.id }.toSet()
+            val fetchedSets = RetrofitInstance.api.searchSets("")
+            val entities = fetchedSets.data.map { it.toSetEntity()}
+            for (entity in entities){
+                if (entity.id !in cachedSetIds){
+                    cacheMissingSet(entity)
+                }
+            }
+            isCaching.value = false
+        }
+    }
+
+    suspend fun cacheMissingSet(entity: SetEntity){
+        setDao.insertSet(entity)
+        cacheSet(entity.name)
+    }
+
     fun cacheAllCards(){
         viewModelScope.launch {
+            isCaching.value = true
             getAllSets()
             Log.d("Setup", "Saving cards to database")
             val cachedSets = setDao.getAll()
@@ -84,6 +107,7 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("Setup", "Saving cards in \"${set.name}\"")
                 cacheSet("\"${set.name}\"")
             }
+            isCaching.value=false
         }
     }
 
