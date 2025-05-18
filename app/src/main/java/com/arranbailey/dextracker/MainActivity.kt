@@ -49,8 +49,10 @@ import coil.compose.AsyncImage
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.network.PokeApiService
 import com.arranbailey.dextracker.network.RetrofitInstance
+import com.arranbailey.dextracker.ui.LoadingScreen
 import com.arranbailey.dextracker.ui.card.CardSearchScreen
 import com.arranbailey.dextracker.viewmodel.CardViewModel
+import com.arranbailey.dextracker.viewmodel.LoadingViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -63,14 +65,23 @@ import retrofit2.http.Query
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             DextrackerTheme {
-                // A surface container using the 'background' color from the theme
+                val loadingViewModel: LoadingViewModel = viewModel()
+                val isLoading = loadingViewModel.isCaching.value
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CardSearchScreen()
+                    if (isLoading) {
+                        LoadingScreen(viewModel = loadingViewModel) {
+                            // this will trigger after loading completes
+                        }
+                    } else {
+                        CardSearchScreen()
+                    }
                 }
             }
         }
