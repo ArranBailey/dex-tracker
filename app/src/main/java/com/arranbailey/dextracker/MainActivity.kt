@@ -1,5 +1,6 @@
 package com.arranbailey.dextracker
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -50,6 +51,8 @@ import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.network.PokeApiService
 import com.arranbailey.dextracker.network.RetrofitInstance
 import com.arranbailey.dextracker.ui.LoadingScreen
+import com.arranbailey.dextracker.ui.SetListScreen
+import com.arranbailey.dextracker.ui.SetTile
 import com.arranbailey.dextracker.ui.card.CardSearchScreen
 import com.arranbailey.dextracker.viewmodel.CardViewModel
 import com.arranbailey.dextracker.viewmodel.LoadingViewModel
@@ -80,7 +83,8 @@ class MainActivity : ComponentActivity() {
                             // this will trigger after loading completes
                         }
                     } else {
-                        CardSearchScreen()
+                        //CardSearchScreen()
+                        SetListScreen()
                     }
                 }
             }
