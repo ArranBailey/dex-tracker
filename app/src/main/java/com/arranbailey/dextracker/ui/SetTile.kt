@@ -1,5 +1,6 @@
 package com.arranbailey.dextracker.ui
 
+import android.R.attr.maxHeight
 import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.data.SetDao
@@ -46,6 +49,8 @@ fun SetTile(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
+            .fillMaxHeight()
+            .aspectRatio(0.9f,matchHeightConstraintsFirst = true)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -53,7 +58,7 @@ fun SetTile(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 2.dp, horizontal = 10.dp)
+                .padding(vertical = 4.dp, horizontal = 10.dp)
         ) {
             // Set ID badge (top-left)
             AsyncImage(
@@ -61,7 +66,7 @@ fun SetTile(
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .height(30.dp)
+                    .height(20.dp)
                     .padding(horizontal = 0.dp, vertical = 0.dp),
                 contentScale = ContentScale.Fit
             )
