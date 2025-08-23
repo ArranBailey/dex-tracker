@@ -39,7 +39,13 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         viewModelScope.launch {
-            checkMissingSets()
+            try {
+                checkMissingSets()
+            }catch (e: Exception){
+                Log.e("NetworkError", "Error fetching data")
+                isCaching.value = false
+            }
+
         }
     }
 

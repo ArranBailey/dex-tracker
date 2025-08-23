@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
@@ -34,6 +35,8 @@ import coil.compose.AsyncImage
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.data.SetDao
 import com.arranbailey.dextracker.data.SetEntity
+import kotlinx.coroutines.flow.Flow
+import androidx.compose.runtime.getValue
 
 @Composable
 fun SetTile(
@@ -102,17 +105,9 @@ fun SetTile(
 
 
 
-class Test(){
-
-    @Composable
-    fun DisplayGrid(sets: List<SetEntity>) {
-        SetGrid(sets = sets, onClick = {})
-    }
-}
-
-
 @Composable
-fun SetGrid(sets: List<SetEntity>, onClick: (SetEntity) -> Unit) {
+fun SetGrid(sets: List<SetEntity>, onSetClick: (SetEntity) -> Unit) {
+    //val setList by sets.collectAsState(initial = emptyList())
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp), // Minimum width per tile
         modifier = Modifier.fillMaxSize(),
@@ -120,7 +115,7 @@ fun SetGrid(sets: List<SetEntity>, onClick: (SetEntity) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(items = sets) { set ->
+        items(items = sets) { set:SetEntity ->
             SetTile(
                 setId = set.id,
                 setName = set.name,
@@ -128,10 +123,10 @@ fun SetGrid(sets: List<SetEntity>, onClick: (SetEntity) -> Unit) {
                 symbolUrl = set.symbolUrl,
                 logoUrl = set.logoUrl,
                 modifier = Modifier
-                    .aspectRatio(1f) // 🔲 Makes the tile square
+                    .aspectRatio(1f) // Makes the tile square
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                onClick = { onClick(set) }
+                onClick = { onSetClick(set) }
             )
         }
     }

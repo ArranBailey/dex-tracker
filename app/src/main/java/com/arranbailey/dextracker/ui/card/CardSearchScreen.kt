@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.arranbailey.dextracker.model.Card
-import com.arranbailey.dextracker.viewmodel.CardViewModel
+import com.arranbailey.dextracker.viewmodel.CardViewModelOld
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +68,7 @@ fun CustomSearchBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardSearchScreen(viewModel: CardViewModel = viewModel()) {
+fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
     Log.d("Info", searchQuery)
     val isCaching = viewModel.isCaching
