@@ -9,5 +9,6 @@ data class CardEntity(
     val name: String,
     val imageUrl: String,
     val rarity: String?,
-    val setName: String?
+    val setName: String,
+    val setId: String
 )

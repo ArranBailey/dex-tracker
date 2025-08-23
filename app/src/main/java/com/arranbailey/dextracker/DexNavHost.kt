@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.arranbailey.dextracker.ui.SetListScreen
+import com.arranbailey.dextracker.ui.card.CardListScreen
 
 @Composable
 fun DexNavHost(navController: NavHostController) {
@@ -18,8 +19,7 @@ fun DexNavHost(navController: NavHostController) {
         }
         composable("cards/{setId}") { backStackEntry ->
             val setId = backStackEntry.arguments?.getString("setId")
-            Log.d("setID", setId.toString())
-            TestCards(setId = setId ?: "")
+            CardListScreen()
             // Display the cards for the given set ID
         }
     }

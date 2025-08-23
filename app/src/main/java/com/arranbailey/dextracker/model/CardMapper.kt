@@ -10,7 +10,8 @@ fun Card.toEntity(): CardEntity = CardEntity(
     name = name,
     imageUrl = images.small,
     rarity = rarity,
-    setName = setName
+    setName = set.name,
+    setId = set.id
 )
 
 fun CardEntity.toCard(): Card = Card(
@@ -18,7 +19,7 @@ fun CardEntity.toCard(): Card = Card(
     name = name,
     images = CardImages(imageUrl, imageUrl),
     rarity = rarity,
-    setName = setName
+    set = SetDetails(setName, setId)
 )
 
 fun CardSet.toSetEntity(): SetEntity = SetEntity(

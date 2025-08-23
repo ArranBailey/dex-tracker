@@ -42,7 +42,7 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
             try {
                 checkMissingSets()
             }catch (e: Exception){
-                Log.e("NetworkError", "Error fetching data")
+                Log.e("NetworkError", "Error fetching data from API: ${e.message}")
                 isCaching.value = false
             }
 

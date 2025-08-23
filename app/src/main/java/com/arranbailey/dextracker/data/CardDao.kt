@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
@@ -14,8 +15,12 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE name LIKE '%' || :query || '%'")
     suspend fun search(query: String): List<CardEntity>
 
+    @Query("SELECT * FROM cards WHERE setId = :setId")
+    fun getCardsBySet(setId: String): Flow<List<CardEntity>>
+
     @Query("SELECT * FROM cards WHERE setName = :setName")
-    suspend fun getCardsBySet(setName: String): List<CardEntity>
+    fun getCardsBySetName(setName: String): List<CardEntity>
+
 
     @Query("DELETE FROM cards")
     suspend fun clearAll()

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CardEntity::class, SetEntity::class], version = 3)
+@Database(entities = [CardEntity::class, SetEntity::class], version = 6)
 abstract class CardDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun setDao(): SetDao

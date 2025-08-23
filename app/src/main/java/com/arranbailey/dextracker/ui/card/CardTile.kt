@@ -33,7 +33,7 @@ fun CardTile(card: Card) {
         Column {
             Text(card.name, fontWeight = FontWeight.Bold)
             Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
-            Text(card.setName ?: "Unknown set", fontSize = 12.sp)
+            Text(card.set.name, fontSize = 12.sp)
         }
     }
 }

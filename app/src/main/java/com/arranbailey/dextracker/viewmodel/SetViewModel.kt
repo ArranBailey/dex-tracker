@@ -17,17 +17,8 @@ import kotlinx.coroutines.launch
 class SetViewModel(application: Application) : AndroidViewModel(application)  {
 
     val db = CardDatabase.getDatabase(application)
-    val dao = db.cardDao()
     val setDao = db.setDao()
     val sets = setDao.getAllSetsOrderedByReleaseDate()
-
-    private val _selectedSetId = MutableStateFlow<String?>(null)
-    val selectedSetId = _selectedSetId.asStateFlow()
-
-    fun onSetClicked(setId: String) {
-        _selectedSetId.value = setId
-        // Add other logic if needed (e.g., fetch cards, analytics, etc.)
-    }
 
     init {
         viewModelScope.launch {
@@ -39,9 +30,5 @@ class SetViewModel(application: Application) : AndroidViewModel(application)  {
         //sets.value = setDao.getAllSetsOrderedByReleaseDate()
     }
 
-//    @Composable
-//    fun DisplayGrid() {
-//        SetGrid(sets = sets, onClick = {})
-//    }
 
 }

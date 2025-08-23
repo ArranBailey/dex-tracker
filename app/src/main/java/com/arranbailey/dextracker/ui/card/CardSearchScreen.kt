@@ -19,6 +19,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +31,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.arranbailey.dextracker.model.Card
+import com.arranbailey.dextracker.model.toCard
+import com.arranbailey.dextracker.viewmodel.CardViewModel
 import com.arranbailey.dextracker.viewmodel.CardViewModelOld
+import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +78,9 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
     val isCaching = viewModel.isCaching
 
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         if (isCaching.value) {
                 Text("Caching cards...", Modifier.padding(16.dp))
         }
@@ -108,6 +114,19 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
 }
 
 @Composable
+fun CardListScreen(viewModel: CardViewModel = viewModel()) {
+    val cards by viewModel.cards.collectAsState(initial = emptyList())
+    Log.d("CardListScreen", cards.size.toString())
+    Log.d("CardListScreen", "cards: $cards")
+    LazyColumn {
+        items(cards) { card ->
+            CardItem(card.toCard())
+        }
+    }
+}
+
+
+@Composable
 fun CardItem(card: Card) {
     Row(modifier = Modifier
         .fillMaxWidth()
@@ -124,7 +143,7 @@ fun CardItem(card: Card) {
         Column {
             Text(card.name, fontWeight = FontWeight.Bold)
             Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
-            Text(card.setName ?: "Unknown set", fontSize = 12.sp)
+            Text(card.set.name, fontSize = 12.sp)
         }
     }
 }

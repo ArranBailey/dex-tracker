@@ -2,6 +2,7 @@ package com.arranbailey.dextracker.viewmodel
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -67,7 +68,7 @@ class CardViewModelOld(application: Application) : AndroidViewModel(application)
     fun loadCardsFromCache(setName: String) {
         viewModelScope.launch {
             Log.d("RoomTest", "Loading cards for set: $setName")
-            val cachedCards = dao.getCardsBySet(setName)
+            val cachedCards = dao.getCardsBySetName(setName)
             Log.d("RoomTest", "Found ${cachedCards.size} cards in DB")
             cards.value = cachedCards.map { it.toCard() }
         }
