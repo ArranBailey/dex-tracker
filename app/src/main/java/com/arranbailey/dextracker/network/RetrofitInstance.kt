@@ -25,6 +25,7 @@ object RetrofitInstance {
         chain.proceed(requestWithApiKey)
     }
 
+    //For slow server
     val client = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
         .addInterceptor(logging)
@@ -34,6 +35,16 @@ object RetrofitInstance {
         .callTimeout(300, SECONDS)
         .retryOnConnectionFailure(true)
         .build()
+
+//    val client = OkHttpClient.Builder()
+//        .addInterceptor(authInterceptor)
+//        .addInterceptor(logging)
+//        .connectTimeout(10, SECONDS)
+//        .readTimeout(10, SECONDS)
+//        .writeTimeout(10, SECONDS)
+//        .callTimeout(10, SECONDS)
+//        .retryOnConnectionFailure(true)
+//        .build()
 
     val api: PokeApiService by lazy {
         Retrofit.Builder()

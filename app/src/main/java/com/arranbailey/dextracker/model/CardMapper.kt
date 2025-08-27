@@ -8,7 +8,8 @@ import com.arranbailey.dextracker.data.SetEntity
 fun Card.toEntity(): CardEntity = CardEntity(
     id = id,
     name = name,
-    imageUrl = images.small,
+    imageSmall = images.small,
+    imageLarge = images.large,
     rarity = rarity,
     setName = set.name,
     setId = set.id
@@ -17,7 +18,7 @@ fun Card.toEntity(): CardEntity = CardEntity(
 fun CardEntity.toCard(): Card = Card(
     id = id,
     name = name,
-    images = CardImages(imageUrl, imageUrl),
+    images = CardImages(imageSmall, imageLarge),
     rarity = rarity,
     set = SetDetails(setName, setId)
 )

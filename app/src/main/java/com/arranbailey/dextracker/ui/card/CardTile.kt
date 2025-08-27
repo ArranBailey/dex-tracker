@@ -28,12 +28,12 @@ fun CardTile(card: Card) {
             modifier = Modifier.size(80.dp)
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(card.name, fontWeight = FontWeight.Bold)
-            Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
-            Text(card.set.name, fontSize = 12.sp)
-        }
+//        Spacer(modifier = Modifier.width(12.dp))
+//
+//        Column {
+//            Text(card.name, fontWeight = FontWeight.Bold)
+//            Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
+//            Text(card.set.name, fontSize = 12.sp)
+//        }
     }
 }

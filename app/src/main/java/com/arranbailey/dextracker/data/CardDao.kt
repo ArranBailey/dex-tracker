@@ -25,3 +25,19 @@ interface CardDao {
     @Query("DELETE FROM cards")
     suspend fun clearAll()
 }
+
+@Dao
+interface OwnedCardDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveCard(ownedCardEntity: OwnedCardEntity)
+
+    @Query("SELECT * FROM owned_cards WHERE id = :id AND variantKey = :variantKey")
+    fun getOwnedCard(id: String, variantKey: String): OwnedCardEntity
+
+    @Query("DELETE FROM owned_cards WHERE id = :id AND variantKey = :variantKey")
+    fun removeCard(id: String, variantKey: String)
+
+    @Query("SELECT * FROM owned_cards WHERE id = :id")
+    fun getOwnedCards(id: String): List<OwnedCardEntity>
+
+}

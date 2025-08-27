@@ -1,17 +1,22 @@
 package com.arranbailey.dextracker.ui.card
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -116,10 +121,11 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
 @Composable
 fun CardListScreen(viewModel: CardViewModel = viewModel()) {
     val cards by viewModel.cards.collectAsState(initial = emptyList())
-    Log.d("CardListScreen", cards.size.toString())
-    Log.d("CardListScreen", "cards: $cards")
-    LazyColumn {
-        items(cards) { card ->
+    LazyVerticalGrid(columns = GridCells.Fixed(3),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.fillMaxWidth()){
+        items(items = cards) { card ->
             CardItem(card.toCard())
         }
     }
@@ -128,22 +134,9 @@ fun CardListScreen(viewModel: CardViewModel = viewModel()) {
 
 @Composable
 fun CardItem(card: Card) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp)) {
-
-        AsyncImage(
-            model = card.images.small,
-            contentDescription = card.name,
-            modifier = Modifier.size(80.dp)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(card.name, fontWeight = FontWeight.Bold)
-            Text(card.rarity ?: "Unknown rarity", fontSize = 12.sp)
-            Text(card.set.name, fontSize = 12.sp)
-        }
-    }
+    AsyncImage(
+        model = card.images.large,
+        contentDescription = card.name,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
