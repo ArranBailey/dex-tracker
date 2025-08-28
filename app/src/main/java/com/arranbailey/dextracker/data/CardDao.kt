@@ -21,6 +21,9 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE setName = :setName")
     fun getCardsBySetName(setName: String): List<CardEntity>
 
+    @Query("SELECT * FROM cards WHERE id = :id")
+    fun getCardById(id: String): Flow<CardEntity>
+
 
     @Query("DELETE FROM cards")
     suspend fun clearAll()

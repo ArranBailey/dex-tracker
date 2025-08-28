@@ -1,6 +1,8 @@
 package com.arranbailey.dextracker.ui.card
 
+import android.R.attr.onClick
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -111,7 +113,7 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
         } else {
             LazyColumn {
                 items(viewModel.cards.value) { card ->
-                    CardItem(card)
+                    CardItem(card, onClick = {card -> card.id})
                 }
             }
         }
@@ -119,24 +121,25 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
 }
 
 @Composable
-fun CardListScreen(viewModel: CardViewModel = viewModel()) {
+fun CardListScreen(viewModel: CardViewModel = viewModel(),
+                   onClick: (Card) -> Unit) {
     val cards by viewModel.cards.collectAsState(initial = emptyList())
     LazyVerticalGrid(columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxWidth()){
         items(items = cards) { card ->
-            CardItem(card.toCard())
+            CardItem(card.toCard(), onClick = onClick)
         }
     }
 }
 
 
 @Composable
-fun CardItem(card: Card) {
+fun CardItem(card: Card, onClick: (card: Card) -> Unit) {
     AsyncImage(
         model = card.images.large,
         contentDescription = card.name,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable{ onClick(card) }
     )
 }

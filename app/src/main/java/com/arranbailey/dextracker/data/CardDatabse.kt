@@ -7,10 +7,11 @@ import androidx.room.PrimaryKey
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CardEntity::class, SetEntity::class], version = 7)
+@Database(entities = [CardEntity::class, SetEntity::class, OwnedCardEntity::class], version = 8)
 abstract class CardDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun setDao(): SetDao
+    abstract fun ownedCardDao(): OwnedCardDao
 
     companion object {
         @Volatile private var INSTANCE: CardDatabase? = null

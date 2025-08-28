@@ -14,8 +14,8 @@ data class CardEntity(
     val setId: String
 )
 
-@Entity(tableName = "owned_cards")
+@Entity(primaryKeys = ["id", "variantKey"], tableName = "owned_cards")
 data class OwnedCardEntity(
-    @PrimaryKey val id: String,
-    @PrimaryKey val variantKey: String,
+    val id: String,
+    val variantKey: String,
     val quantity: Int)
