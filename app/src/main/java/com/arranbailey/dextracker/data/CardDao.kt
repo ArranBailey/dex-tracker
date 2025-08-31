@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,16 +32,23 @@ interface CardDao {
 
 @Dao
 interface OwnedCardDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveCard(ownedCardEntity: OwnedCardEntity)
 
-    @Query("SELECT * FROM owned_cards WHERE id = :id AND variantKey = :variantKey")
-    fun getOwnedCard(id: String, variantKey: String): OwnedCardEntity
+    @Upsert
+    suspend fun upsert(entity: OwnedCardEntity)
 
-    @Query("DELETE FROM owned_cards WHERE id = :id AND variantKey = :variantKey")
-    fun removeCard(id: String, variantKey: String)
+    @Query("""
+        UPDATE owned_cards SET quantity = quantity + :delta
+        WHERE id = :cardId AND variantKey = :variantKey
+    """)
+    suspend fun addDelta(cardId: String, variantKey: String, delta: Int): Int
+    // returns number of rows updated (0 if none)
 
-    @Query("SELECT * FROM owned_cards WHERE id = :id")
-    fun getOwnedCards(id: String): List<OwnedCardEntity>
+    @Query("DELETE FROM owned_cards WHERE id = :cardId AND variantKey = :variantKey")
+    suspend fun delete(cardId: String, variantKey: String)
 
+    @Query("SELECT * FROM owned_cards WHERE id = :cardId")
+    fun getOwnedForCard(cardId: String): Flow<List<OwnedCardEntity>>
+
+    @Query("SELECT * FROM owned_cards")
+    fun getAll(): Flow<List<OwnedCardEntity>>
 }
