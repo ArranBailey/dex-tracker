@@ -33,7 +33,8 @@ class MainActivity : ComponentActivity() {
                             // this will trigger after loading completes
                         }
                     } else {
-                        DexNavHost(rememberNavController())
+                        //DexNavHost(rememberNavController())
+                        MainApp()
                     }
                 }
             }

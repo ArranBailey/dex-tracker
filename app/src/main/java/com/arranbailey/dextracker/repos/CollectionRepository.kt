@@ -1,5 +1,6 @@
 package com.arranbailey.dextracker.repos
 
+import androidx.compose.runtime.collectAsState
 import com.arranbailey.dextracker.data.OwnedCardDao
 import com.arranbailey.dextracker.data.OwnedCardEntity
 import kotlinx.coroutines.flow.Flow
@@ -20,9 +21,12 @@ class CollectionRepo(private val dao: OwnedCardDao) {
         if (updated == 0) dao.upsert(OwnedCardEntity(cardId, variantKey, qty))
     }
 
-    suspend fun remove(cardId: String, variantKey: String, qty: Int = 1) {
-        val updated = dao.addDelta(cardId, variantKey, -qty)
-        // optional: if it hit 0, you can delete the row to keep table tidy
-        // (requires reading the current value first if you want to be exact)
+    suspend fun remove(cardId: String, variantKey: String = "Normal", qty: Int = 1) {
+        var updated = 0
+        val quantity = dao.getQuantityForCard(cardId, variantKey)
+        if (quantity != null) {
+            if (quantity == 1 ) dao.delete(cardId, variantKey)
+            else if (quantity > 1)  updated = dao.addDelta(cardId, variantKey, -qty)
+        }
     }
 }

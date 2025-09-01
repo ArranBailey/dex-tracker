@@ -49,6 +49,9 @@ interface OwnedCardDao {
     @Query("SELECT * FROM owned_cards WHERE id = :cardId")
     fun getOwnedForCard(cardId: String): Flow<List<OwnedCardEntity>>
 
+    @Query("SELECT quantity FROM owned_cards WHERE id = :cardId AND variantKey = :variantKey")
+    suspend fun getQuantityForCard(cardId: String, variantKey: String): Int?
+
     @Query("SELECT * FROM owned_cards")
     fun getAll(): Flow<List<OwnedCardEntity>>
 }

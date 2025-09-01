@@ -3,6 +3,7 @@ package com.arranbailey.dextracker
 import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,12 +12,15 @@ import com.arranbailey.dextracker.ui.card.CardDetailsScreen
 import com.arranbailey.dextracker.ui.card.CardListScreen
 
 @Composable
-fun DexNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "sets") {
+fun DexNavHost(navController: NavHostController,modifier: Modifier = Modifier) {
+    NavHost(navController = navController, startDestination = "sets", modifier = modifier) {
         composable("sets") {
             SetListScreen(onSetClick = { setId ->
                 navController.navigate("sets/${setId}")
             })
+        }
+        composable("search"){
+            Text("Search")
         }
         composable("sets/{setId}") { backStackEntry ->
             val setId = backStackEntry.arguments?.getString("setId")
