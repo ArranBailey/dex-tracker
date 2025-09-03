@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.model.toCard
 import com.arranbailey.dextracker.viewmodel.CardViewModel
@@ -113,7 +114,7 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
         } else {
             LazyColumn {
                 items(viewModel.cards.value) { card ->
-                    CardItem(card, onClick = {card -> card.id})
+                    CardItem(card.toCard(), onClick = {card -> card.id})
                 }
             }
         }
@@ -124,6 +125,19 @@ fun CardSearchScreen(viewModel: CardViewModelOld = viewModel()) {
 fun CardListScreen(viewModel: CardViewModel = viewModel(),
                    onClick: (Card) -> Unit) {
     val cards by viewModel.cards.collectAsState(initial = emptyList())
+//    LazyVerticalGrid(columns = GridCells.Fixed(3),
+//        horizontalArrangement = Arrangement.spacedBy(4.dp),
+//        verticalArrangement = Arrangement.spacedBy(4.dp),
+//        modifier = Modifier.fillMaxWidth()){
+//        items(items = cards) { card ->
+//            CardItem(card.toCard(), onClick = onClick)
+//        }
+//    }
+    CardGrid(cards, onClick = onClick)
+}
+
+@Composable
+fun CardGrid(cards: List<CardEntity>, onClick: (Card) -> Unit){
     LazyVerticalGrid(columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),

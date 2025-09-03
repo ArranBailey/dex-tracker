@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
+import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.data.SetEntity
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.model.CardSet
@@ -24,7 +25,7 @@ class CardViewModelOld(application: Application) : AndroidViewModel(application)
     private val db = CardDatabase.getDatabase(application)
     private val dao = db.cardDao()
     private val setDao = db.setDao()
-    var cards = mutableStateOf<List<Card>>(emptyList())
+    var cards = mutableStateOf<List<CardEntity>>(emptyList())
         private set
     var sets = mutableStateOf<List<CardSet>>(emptyList())
     var isLoading = mutableStateOf(false)
@@ -36,20 +37,27 @@ class CardViewModelOld(application: Application) : AndroidViewModel(application)
         }
     }
 
+//    fun search(query: String) {
+//        viewModelScope.launch {
+//            isLoading.value = true
+//            try {
+//                val response = RetrofitInstance.api.searchCards("name:$query")
+//                Log.d("DEBUG", "Raw response: ${response.data.size}")
+//                cards.value = response.data
+//                val rawJson = Gson().toJson(response)
+//                Log.d("RAW_JSON", rawJson)
+//            } catch (e: Exception) {
+//                // Handle error
+//                cards.value = emptyList()
+//            }
+//            isLoading.value = false
+//        }
+//    }
+
     fun search(query: String) {
         viewModelScope.launch {
-            isLoading.value = true
-            try {
-                val response = RetrofitInstance.api.searchCards("name:$query")
-                Log.d("DEBUG", "Raw response: ${response.data.size}")
-                cards.value = response.data
-                val rawJson = Gson().toJson(response)
-                Log.d("RAW_JSON", rawJson)
-            } catch (e: Exception) {
-                // Handle error
-                cards.value = emptyList()
-            }
-            isLoading.value = false
+            cards.value = dao.search(query)
+            //cards.value = results.map { it.toCard() }
         }
     }
     fun cacheSet(setName: String) {
@@ -70,7 +78,7 @@ class CardViewModelOld(application: Application) : AndroidViewModel(application)
             Log.d("RoomTest", "Loading cards for set: $setName")
             val cachedCards = dao.getCardsBySetName(setName)
             Log.d("RoomTest", "Found ${cachedCards.size} cards in DB")
-            cards.value = cachedCards.map { it.toCard() }
+            //cards.value = cachedCards.map { it.toCard() }
         }
     }
 

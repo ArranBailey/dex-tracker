@@ -15,9 +15,6 @@ class CardViewModel(application: Application, savedStateHandle: SavedStateHandle
     val setId: String = savedStateHandle.get<String>("setId") ?: ""
     val cards = dao.getCardsBySet(setId)
 
-    init {
-        Log.d("setID", setId.toString())
-    }
 
 
 }

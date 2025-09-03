@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.arranbailey.dextracker.ui.SearchScreen
 import com.arranbailey.dextracker.ui.SetListScreen
 import com.arranbailey.dextracker.ui.card.CardDetailsScreen
 import com.arranbailey.dextracker.ui.card.CardListScreen
@@ -20,7 +21,7 @@ fun DexNavHost(navController: NavHostController,modifier: Modifier = Modifier) {
             })
         }
         composable("search"){
-            Text("Search")
+            SearchScreen(onClick = { card -> navController.navigate("cards/${card.id}") })
         }
         composable("sets/{setId}") { backStackEntry ->
             val setId = backStackEntry.arguments?.getString("setId")
