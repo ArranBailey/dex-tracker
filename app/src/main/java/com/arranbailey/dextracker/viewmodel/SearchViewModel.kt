@@ -2,24 +2,20 @@ package com.arranbailey.dextracker.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.data.SetEntity
-import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.model.CardSet
-import com.arranbailey.dextracker.model.toCard
 import com.arranbailey.dextracker.model.toEntity
 import com.arranbailey.dextracker.model.toSetEntity
 import com.arranbailey.dextracker.network.RetrofitInstance
-import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class CardViewModelOld(application: Application) : AndroidViewModel(application) {
+class SearchViewModel(application: Application) : AndroidViewModel(application) {
     var isCaching = mutableStateOf(false)
         private set
     private val db = CardDatabase.getDatabase(application)
@@ -31,28 +27,6 @@ class CardViewModelOld(application: Application) : AndroidViewModel(application)
     var isLoading = mutableStateOf(false)
         private set
 
-    init {
-        viewModelScope.launch {
-            checkMissingSets()
-        }
-    }
-
-//    fun search(query: String) {
-//        viewModelScope.launch {
-//            isLoading.value = true
-//            try {
-//                val response = RetrofitInstance.api.searchCards("name:$query")
-//                Log.d("DEBUG", "Raw response: ${response.data.size}")
-//                cards.value = response.data
-//                val rawJson = Gson().toJson(response)
-//                Log.d("RAW_JSON", rawJson)
-//            } catch (e: Exception) {
-//                // Handle error
-//                cards.value = emptyList()
-//            }
-//            isLoading.value = false
-//        }
-//    }
 
     fun search(query: String) {
         viewModelScope.launch {
