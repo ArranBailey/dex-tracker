@@ -144,7 +144,7 @@ fun CardGrid(cards: List<CardEntity>, onClick: (Card) -> Unit){
 @Composable
 fun CardItem(card: Card, onClick: (card: Card) -> Unit) {
     AsyncImage(
-        model = card.images.large,
+        model = card.image+"/high.jpg",
         contentDescription = card.name,
         modifier = Modifier.fillMaxWidth().clickable{ onClick(card) }
     )

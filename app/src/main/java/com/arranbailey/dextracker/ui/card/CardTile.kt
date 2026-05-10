@@ -23,7 +23,7 @@ fun CardTile(card: Card) {
         .padding(8.dp)) {
 
         AsyncImage(
-            model = card.images.small,
+            model = card.image + "/high.webp",
             contentDescription = card.name,
             modifier = Modifier.size(80.dp)
         )

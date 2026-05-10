@@ -143,8 +143,8 @@ fun SetGrid(sets: List<SetEntity>, onSetClick: (SetEntity) -> Unit) {
                     setName = set.name,
                     series = set.series,
                     cardCount = set.total,
-                    symbolUrl = set.symbolUrl,
-                    logoUrl = set.logoUrl,
+                    symbolUrl = set.symbolUrl+".webp",
+                    logoUrl = set.logoUrl+".webp",
                     modifier = Modifier
                         .aspectRatio(1f) // Makes the tile square
                         .fillMaxWidth()

@@ -1,6 +1,6 @@
 package com.arranbailey.dextracker.network
 
-import com.arranbailey.dextracker.BuildConfig
+//import com.arranbailey.dextracker.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,19 +11,20 @@ import java.util.concurrent.TimeUnit.SECONDS
 
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://api.pokemontcg.io/v2/"
+   // private const val BASE_URL = "https://api.pokemontcg.io/v2/"
+    private const val BASE_URL = "https://api.tcgdex.net/v2/en/"
     val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    val authInterceptor = Interceptor { chain ->
-        val requestWithApiKey =
-            chain.request()
-                .newBuilder()
-                .header("X-Api-Key", BuildConfig.POKEMON_API_KEY)
-                .build()
-        chain.proceed(requestWithApiKey)
-    }
+//    val authInterceptor = Interceptor { chain ->
+//        val requestWithApiKey =
+//            chain.request()
+//                .newBuilder()
+//                .header("X-Api-Key", BuildConfig.POKEMON_API_KEY)
+//                .build()
+//        chain.proceed(requestWithApiKey)
+//    }
 
     //For slow server
 //    val client = OkHttpClient.Builder()
@@ -37,7 +38,7 @@ object RetrofitInstance {
 //        .build()
 
     val client = OkHttpClient.Builder()
-        .addInterceptor(authInterceptor)
+//        .addInterceptor(authInterceptor)
         .addInterceptor(logging)
         .connectTimeout(10, SECONDS)
         .readTimeout(10, SECONDS)

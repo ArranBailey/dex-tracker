@@ -28,7 +28,14 @@ interface CardDao {
 
     @Query("DELETE FROM cards")
     suspend fun clearAll()
+
+    @Query("SELECT * FROM cards WHERE id = :id")
+    suspend fun getCardByIdOnce(id: String): CardEntity?
+
+    @Query("UPDATE cards SET rarity = :rarity WHERE id = :id")
+    suspend fun updateRarity(id: String, rarity: String?)
 }
+
 
 @Dao
 interface OwnedCardDao {

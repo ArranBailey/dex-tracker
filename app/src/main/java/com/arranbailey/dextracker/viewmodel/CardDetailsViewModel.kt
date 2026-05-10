@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
+import com.arranbailey.dextracker.network.RetrofitInstance
 import com.arranbailey.dextracker.repos.CollectionRepo
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,22 @@ class CardDetailsViewModel(application: Application, savedStateHandle: SavedStat
     val variantQuantities: StateFlow<Map<String, Int>> =
         repo.quantitiesForCard(cardId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+
+    init {
+        viewModelScope.launch {
+            val cachedCard = dao.getCardByIdOnce(cardId)
+            if (cachedCard != null && cachedCard.rarity == null) {
+                try {
+                    val fullCard = RetrofitInstance.api.getCard(cardId)
+                    dao.updateRarity(cardId, fullCard.rarity)
+                } catch (e: Exception) {
+                    // Silently fail — we still show the card, just without rarity
+                }
+            }
+        }
+    }
+
 
     fun addOne(variantKey: String = "Normal") = viewModelScope.launch {
         repo.add(cardId, variantKey, 1)

@@ -3,24 +3,28 @@ package com.arranbailey.dextracker.model
 data class CardSet(
     val id: String,
     val name: String,
-    val series: String,
-    val printedTotal: Int,
-    val total: Int,
-    val ptcgoCode: String?,
-    val legalities: LegalitiesData,
-    val releaseDate: String,
-    val updatedAt: String,
-    val images: ImagesData
+    val cardCount: CardCountData,
+    val tcgOnline: String?,
+    val legal: LegalitiesData? =null,
+    val releaseDate: String? = null,
+    val symbol: String?,
+    val logo: String?,
+    val serie: SerieData? = null,
+    val cards: List<Card>? = null  // add this
 )
 
 
 data class LegalitiesData(
-    val unlimited: String,
-    val standard: String?, // Based on your CardSet, standard/expandedLegal are booleans
-    val expanded: String?  // You'll need to map "Legal" string to Boolean true
+    val standard: Boolean?,
+    val expanded: Boolean?
 )
 
-data class ImagesData(
-    val symbol: String?, // Make nullable if they can ever be missing
-    val logo: String?    // Make nullable if they can ever be missing
+data class SerieData(
+    val name: String
 )
+
+data class CardCountData(
+    val official:Int,
+    val total: Int
+)
+

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
+import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.data.SetEntity
 import com.arranbailey.dextracker.model.toEntity
 import com.arranbailey.dextracker.model.toSetEntity
@@ -56,8 +57,7 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
         completedSetsCount = 0
 
         val cachedSetIds = setDao.getAll().map { it.id }.toSet()
-        val fetchedSetsResponse = RetrofitInstance.api.searchSets("") // Assuming this returns all sets
-        val allRemoteSets = fetchedSetsResponse.data.map { it.toSetEntity() }
+        val allRemoteSets = RetrofitInstance.api.getSets().map { it.toSetEntity() }
         val missingSets = allRemoteSets.filter { it.id !in cachedSetIds }
 
         if (missingSets.isEmpty()) {
@@ -78,13 +78,23 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
                     Log.d("LoadingViewModel", "Inserted set: ${setEntity.name}")
 
                     // 2. Fetch and cache cards for this set
-                    val cardsResponse = RetrofitInstance.api.searchCards("set.id:${setEntity.id}", pageSize = 250) // Use the 250 page size you had
-                    if (cardsResponse.data.isNotEmpty()) {
-                        val cardEntities = cardsResponse.data.map { it.toEntity() }
+                    val setWithCards = RetrofitInstance.api.getSetWithCards(setEntity.id)
+                    val cards = setWithCards.cards
+
+                    if (!cards.isNullOrEmpty()) {
+                        val cardEntities = cards.map { card ->
+                            CardEntity(
+                                id = card.id,
+                                name = card.name,
+                                imageSmall = card.image + "/low.webp",
+                                imageLarge = card.image + "/high.webp",
+                                rarity = card.rarity,
+                                setName = setEntity.name,
+                                setId = setEntity.id
+                            )
+                        }
                         dao.insertAll(cardEntities)
                         Log.d("LoadingViewModel", "Cached ${cardEntities.size} cards for set ${setEntity.name} (${setEntity.id})")
-                    } else {
-                        Log.d("LoadingViewModel", "No cards found for set ${setEntity.name} (${setEntity.id})")
                     }
 
                     // 3. Update progress safely

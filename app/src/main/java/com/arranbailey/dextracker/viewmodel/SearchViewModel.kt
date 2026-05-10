@@ -8,11 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.data.SetEntity
-import com.arranbailey.dextracker.model.CardSet
-import com.arranbailey.dextracker.model.toEntity
 import com.arranbailey.dextracker.model.toSetEntity
 import com.arranbailey.dextracker.network.RetrofitInstance
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,24 +20,35 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val setDao = db.setDao()
     var cards = mutableStateOf<List<CardEntity>>(emptyList())
         private set
-    var sets = mutableStateOf<List<CardSet>>(emptyList())
     var isLoading = mutableStateOf(false)
         private set
-
 
     fun search(query: String) {
         viewModelScope.launch {
             cards.value = dao.search(query)
-            //cards.value = results.map { it.toCard() }
         }
     }
-    fun cacheSet(setName: String) {
+
+    fun cacheSet(setId: String) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.searchCards("set.name:$setName", pageSize = 250)
-                val entities = response.data.map { it.toEntity() }
-                dao.insertAll(entities)
-                Log.d("CardViewModel", "Cached ${entities.size} cards for $setName")
+                val setWithCards = RetrofitInstance.api.getSetWithCards(setId)
+                val cards = setWithCards.cards
+                if (!cards.isNullOrEmpty()) {
+                    val entities = cards.map { card ->
+                        CardEntity(
+                            id = card.id,
+                            name = card.name,
+                            imageSmall = card.image + "/low.jpg",
+                            imageLarge = card.image + "/high.jpg",
+                            rarity = card.rarity,
+                            setName = setWithCards.name,
+                            setId = setWithCards.id
+                        )
+                    }
+                    dao.insertAll(entities)
+                    Log.d("CardViewModel", "Cached ${entities.size} cards for ${setWithCards.name}")
+                }
             } catch (e: Exception) {
                 Log.e("CardViewModel", "Error caching set: ${e.message}")
             }
@@ -52,19 +60,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             Log.d("RoomTest", "Loading cards for set: $setName")
             val cachedCards = dao.getCardsBySetName(setName)
             Log.d("RoomTest", "Found ${cachedCards.size} cards in DB")
-            //cards.value = cachedCards.map { it.toCard() }
         }
     }
 
-    fun checkMissingSets(){
+    fun checkMissingSets() {
         viewModelScope.launch {
             isCaching.value = true
-            var cachedSets = setDao.getAll()
+            val cachedSets = setDao.getAll()
             val cachedSetIds = cachedSets.map { it.id }.toSet()
-            val fetchedSets = RetrofitInstance.api.searchSets("")
-            val entities = fetchedSets.data.map { it.toSetEntity()}
-            for (entity in entities){
-                if (entity.id !in cachedSetIds){
+            val fetchedSets = RetrofitInstance.api.getSets()
+            val entities = fetchedSets.map { it.toSetEntity() }
+            for (entity in entities) {
+                if (entity.id !in cachedSetIds) {
                     cacheMissingSet(entity)
                 }
             }
@@ -72,29 +79,59 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    suspend fun cacheMissingSet(entity: SetEntity){
+    suspend fun cacheMissingSet(entity: SetEntity) {
         setDao.insertSet(entity)
-        cacheSet(entity.name)
+        val setWithCards = RetrofitInstance.api.getSetWithCards(entity.id)
+        val cards = setWithCards.cards
+        if (!cards.isNullOrEmpty()) {
+            val cardEntities = cards.map { card ->
+                CardEntity(
+                    id = card.id,
+                    name = card.name,
+                    imageSmall = card.image + "/low.jpg",
+                    imageLarge = card.image + "/high.jpg",
+                    rarity = card.rarity,
+                    setName = setWithCards.name,
+                    setId = setWithCards.id
+                )
+            }
+            dao.insertAll(cardEntities)
+            Log.d("CardViewModel", "Cached ${cardEntities.size} cards for ${entity.name}")
+        }
     }
 
-    fun cacheAllCards(){
+    fun cacheAllCards() {
         viewModelScope.launch {
             isCaching.value = true
             getAllSets()
             Log.d("Setup", "Saving cards to database")
             val cachedSets = setDao.getAll()
-            for (set in cachedSets){
-                delay(100)
+            for (set in cachedSets) {
                 Log.d("Setup", "Saving cards in \"${set.name}\"")
-                cacheSet("\"${set.name}\"")
+                val setWithCards = RetrofitInstance.api.getSetWithCards(set.id)
+                val cards = setWithCards.cards
+                if (!cards.isNullOrEmpty()) {
+                    val cardEntities = cards.map { card ->
+                        CardEntity(
+                            id = card.id,
+                            name = card.name,
+                            imageSmall = card.image + "/low.jpg",
+                            imageLarge = card.image + "/high.jpg",
+                            rarity = card.rarity,
+                            setName = setWithCards.name,
+                            setId = setWithCards.id
+                        )
+                    }
+                    dao.insertAll(cardEntities)
+                }
             }
-            isCaching.value=false
+            isCaching.value = false
         }
     }
 
     suspend fun getAllSets() {
-        val newSets = RetrofitInstance.api.searchSets("")
-        val entities = newSets.data.map { it.toSetEntity() }
+        val newSets = RetrofitInstance.api.getSets()
+        val entities = newSets.map { it.toSetEntity() }
         setDao.insertAllSets(entities)
         Log.d("CardViewModel", "Cached ${entities.size} sets")
     }
