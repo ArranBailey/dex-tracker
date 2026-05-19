@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,9 +28,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.arranbailey.dextracker.R
 import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.model.Card
 import com.arranbailey.dextracker.model.toCard
@@ -144,8 +150,14 @@ fun CardGrid(cards: List<CardEntity>, onClick: (Card) -> Unit){
 @Composable
 fun CardItem(card: Card, onClick: (card: Card) -> Unit) {
     AsyncImage(
-        model = card.image+"/high.jpg",
+        model = card.image+"/low.webp",
         contentDescription = card.name,
-        modifier = Modifier.fillMaxWidth().clickable{ onClick(card) }
+        contentScale = ContentScale.Fit,
+        error = ColorPainter(Color.DarkGray),
+        placeholder = ColorPainter(Color.LightGray),
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(245f / 337f)
+            .clickable { onClick(card) }
     )
 }

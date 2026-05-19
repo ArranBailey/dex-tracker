@@ -18,6 +18,7 @@ interface SetDao {
     @Query("SELECT * FROM sets")
     suspend fun getAll(): List<SetEntity>
 
-    @Query("SELECT * FROM sets ORDER BY releaseDate DESC") // DESC for newest first
+    @Query("SELECT * FROM sets ORDER BY serieOrder DESC") // DESC for newest first
     fun getAllSetsOrderedByReleaseDate(): Flow<List<SetEntity>>
+
 }

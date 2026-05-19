@@ -27,6 +27,7 @@ fun CardSet.toSetEntity(): SetEntity = SetEntity(
     id = id,
     name = name,
     series = serie?.name ?: "",
+    serieOrder = 0,
     printedTotal = cardCount.official,
     total = cardCount.total,
     ptcgoCode = tcgOnline?:"",
@@ -34,8 +35,7 @@ fun CardSet.toSetEntity(): SetEntity = SetEntity(
     symbolUrl =symbol.toString(),
     logoUrl = logo.toString(),
     standardLegal = legal?.standard ?:false,
-    expandedLegal = legal?.expanded?:false
-)
+    expandedLegal = legal?.expanded?:false)
 
 fun SetEntity.toCardSet(): CardSet = CardSet(
     id = id,

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,8 +25,10 @@ fun CardTile(card: Card) {
         .padding(8.dp)) {
 
         AsyncImage(
-            model = card.image + "/high.webp",
+            model = card.image + "/low.webp",
             contentDescription = card.name,
+            error = ColorPainter(Color.DarkGray),
+            placeholder = ColorPainter(Color.LightGray),
             modifier = Modifier.size(80.dp)
         )
 

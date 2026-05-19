@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.arranbailey.dextracker.data.CardDatabase
 import com.arranbailey.dextracker.data.CardEntity
 import com.arranbailey.dextracker.data.SetEntity
+import com.arranbailey.dextracker.model.SetBrief
 import com.arranbailey.dextracker.model.toEntity
 import com.arranbailey.dextracker.model.toSetEntity
 import com.arranbailey.dextracker.network.RetrofitInstance
@@ -57,30 +58,56 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
         completedSetsCount = 0
 
         val cachedSetIds = setDao.getAll().map { it.id }.toSet()
-        val allRemoteSets = RetrofitInstance.api.getSets().map { it.toSetEntity() }
-        val missingSets = allRemoteSets.filter { it.id !in cachedSetIds }
+        val excludedSeries = setOf("tcgp", "misc", "tk", "mc")
 
-        if (missingSets.isEmpty()) {
+        // 1. Fetch all series and filter out non-physical
+        val allSeries = RetrofitInstance.api.getSeries()
+            .filter { it.id !in excludedSeries }
+
+        val allSets = mutableListOf<Triple<String, Int, SetBrief>>()
+        for ((index, serie) in allSeries.withIndex()) {
+            val serieWithSets = RetrofitInstance.api.getSerieWithSets(serie.id)
+            serieWithSets.sets?.forEach { set ->
+                if (set.id !in cachedSetIds) {
+                    allSets.add(Triple(serie.name, index, set))
+                }
+            }
+        }
+
+        if (allSets.isEmpty()) {
             progressText.value = "All sets are up to date!"
             progress.floatValue = 1f
             isCaching.value = false
             return
         }
 
-        val totalSetsToCache = missingSets.size
+        val totalSetsToCache = allSets.size
         progressText.value = "Found $totalSetsToCache new sets to cache..."
 
-        val cachingJobs = missingSets.map { setEntity ->
-            viewModelScope.async { // Launch each as an independent async job
+        // 3. For each missing set, fetch cards and cache
+        val cachingJobs = allSets.map { (serieName, serieIndex, setBrief) ->
+            viewModelScope.async {
                 try {
-                    // 1. Insert the set information itself
+                    val setEntity = SetEntity(
+                        id = setBrief.id,
+                        name = setBrief.name,
+                        series = serieName,
+                        serieOrder = serieIndex,
+                        printedTotal = setBrief.cardCount?.official ?: 0,
+                        total = setBrief.cardCount?.total ?: 0,
+                        ptcgoCode = "",
+                        standardLegal = false,
+                        expandedLegal = false,
+                        releaseDate = "",
+                        symbolUrl = setBrief.symbol ?: "",
+                        logoUrl = setBrief.logo ?: ""
+                    )
                     setDao.insertSet(setEntity)
-                    Log.d("LoadingViewModel", "Inserted set: ${setEntity.name}")
+                    Log.d("LoadingViewModel", "Inserted set: ${setBrief.name}")
 
-                    // 2. Fetch and cache cards for this set
-                    val setWithCards = RetrofitInstance.api.getSetWithCards(setEntity.id)
+                    // Fetch and cache cards
+                    val setWithCards = RetrofitInstance.api.getSetWithCards(setBrief.id)
                     val cards = setWithCards.cards
-
                     if (!cards.isNullOrEmpty()) {
                         val cardEntities = cards.map { card ->
                             CardEntity(
@@ -89,46 +116,32 @@ class LoadingViewModel(application: Application) : AndroidViewModel(application)
                                 imageSmall = card.image + "/low.webp",
                                 imageLarge = card.image + "/high.webp",
                                 rarity = card.rarity,
-                                setName = setEntity.name,
-                                setId = setEntity.id
+                                setName = setBrief.name,
+                                setId = setBrief.id
                             )
                         }
                         dao.insertAll(cardEntities)
-                        Log.d("LoadingViewModel", "Cached ${cardEntities.size} cards for set ${setEntity.name} (${setEntity.id})")
+                        Log.d("LoadingViewModel", "Cached ${cardEntities.size} cards for ${setBrief.name}")
                     }
 
-                    // 3. Update progress safely
                     progressMutex.withLock {
                         completedSetsCount++
                         progress.floatValue = completedSetsCount.toFloat() / totalSetsToCache
-                        progressText.value = "Cached: ${setEntity.name} ($completedSetsCount/$totalSetsToCache)"
+                        progressText.value = "Cached: ${setBrief.name} ($completedSetsCount/$totalSetsToCache)"
                     }
                 } catch (e: Exception) {
-                    Log.e("LoadingViewModel", "Error caching set ${setEntity.name} (${setEntity.id}): ${e.message}", e)
-                    // Optionally, update progress for the attempt, or track failures separately
-                    // For simplicity, we'll still count it towards progress of "attempted" sets
+                    Log.e("LoadingViewModel", "Error caching set ${setBrief.name} (${setBrief.id}): ${e.message}", e)
                     progressMutex.withLock {
-                        completedSetsCount++ // Count as an attempt
+                        completedSetsCount++
                         progress.floatValue = completedSetsCount.toFloat() / totalSetsToCache
-                        progressText.value = "Error caching: ${setEntity.name}. Continuing... ($completedSetsCount/$totalSetsToCache)"
+                        progressText.value = "Error caching: ${setBrief.name}. Continuing... ($completedSetsCount/$totalSetsToCache)"
                     }
-                    // Depending on the error, you might want to re-throw or handle it more specifically
                 }
             }
         }
 
-        // Wait for all caching jobs to complete (either successfully or with an exception)
         cachingJobs.awaitAll()
-
-        Log.d("LoadingViewModel", "All caching jobs complete. Total sets processed: $completedSetsCount")
-
-        // Final UI update
-        val completedSetsCount = null
-        if (completedSetsCount == totalSetsToCache) { // Or check against a list of successful caches if you track that
-            progressText.value = "Caching complete! $totalSetsToCache sets processed."
-        } else {
-            progressText.value = "Caching finished. Some sets may have had issues."
-        }
+        progressText.value = "Caching complete! $totalSetsToCache sets processed."
         progress.floatValue = 1f
         isCaching.value = false
     }
